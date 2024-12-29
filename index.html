@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="teste.ico" type="image/x-icon">
+    <title>Anotações Para Nossos Próximos Encontros</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 100vh;
+            margin: 0;
+            background: #ffe6f0;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #ff4081;
+        }
+
+        textarea {
+            width: 100%;
+            max-width: 500px;
+            height: 100px;
+            padding: 10px;
+            font-size: 16px;
+            border: 2px solid #ff4081;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            resize: none;
+        }
+
+        button {
+            background-color: #ff4081;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+
+        button:hover {
+            background-color: #e63974;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        li {
+            background: #fff;
+            border: 2px solid #ff4081;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 10px;
+            word-wrap: break-word;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .delete-btn {
+            background-color: #e63974;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            font-size: 14px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .delete-btn:hover {
+            background-color: #c0275d;
+        }
+    </style>
+</head>
+<body>
+    <h1>Anotações Para Nossos Próximos Encontros</h1>
+    <textarea id="noteInput" placeholder="Escreva uma ideia para nosso próximo encontro..."></textarea>
+    <button id="addNoteBtn">Adicionar Nota</button>
+    <ul id="notesList"></ul>
+
+    <script>
+        const noteInput = document.getElementById('noteInput');
+        const addNoteBtn = document.getElementById('addNoteBtn');
+        const notesList = document.getElementById('notesList');
+
+        // Carrega as notas salvas no armazenamento local
+        function loadNotes() {
+            const savedNotes = JSON.parse(localStorage.getItem('romanticNotes')) || [];
+            savedNotes.forEach((note, index) => addNoteToDOM(note, index));
+        }
+
+        // Adiciona uma nova nota à lista e ao DOM
+        function addNoteToDOM(note, index) {
+            const li = document.createElement('li');
+            li.innerHTML = `
+                <span>${note}</span>
+                <button class="delete-btn" data-index="${index}">Excluir</button>
+            `;
+            notesList.appendChild(li);
+        }
+
+        // Atualiza as notas salvas no Local Storage
+        function updateLocalStorage(notes) {
+            localStorage.setItem('romanticNotes', JSON.stringify(notes));
+        }
+
+        // Salva uma nova nota
+        function saveNote() {
+            const note = noteInput.value.trim();
+            if (note) {
+                const savedNotes = JSON.parse(localStorage.getItem('romanticNotes')) || [];
+                savedNotes.push(note);
+                updateLocalStorage(savedNotes);
+                addNoteToDOM(note, savedNotes.length - 1);
+                noteInput.value = ''; // Limpa o campo de entrada
+            } else {
+                alert('Por favor, escreva algo antes de adicionar.');
+            }
+        }
+
+        // Remove uma nota
+        function deleteNote(index) {
+            const savedNotes = JSON.parse(localStorage.getItem('romanticNotes')) || [];
+            savedNotes.splice(index, 1);
+            updateLocalStorage(savedNotes);
+            renderNotes(); // Recarrega a lista de notas
+        }
+
+        // Recarrega as notas no DOM
+        function renderNotes() {
+            notesList.innerHTML = '';
+            const savedNotes = JSON.parse(localStorage.getItem('romanticNotes')) || [];
+            savedNotes.forEach((note, index) => addNoteToDOM(note, index));
+        }
+
+        // Evento de clique no botão de adicionar
+        addNoteBtn.addEventListener('click', saveNote);
+
+        // Evento de clique para excluir uma nota
+        notesList.addEventListener('click', (e) => {
+            if (e.target.classList.contains('delete-btn')) {
+                const index = e.target.getAttribute('data-index');
+                deleteNote(index);
+            }
+        });
+
+        // Carrega as notas ao iniciar
+        loadNotes();
+    </script>
+</body>
+</html>
